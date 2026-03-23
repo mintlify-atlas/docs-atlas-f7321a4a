@@ -1,0 +1,86 @@
+{
+  "projectType": "cli-tool",
+  "projectName": "Faisan Bridge CLI",
+  "projectDescription": "A CLI tool for syncing local HTML components with a WordPress site using the Faisan Bridge plugin.",
+  "theme": "palm",
+  "primaryColor": "#04449c",
+  "lightColor": "#10c6ad",
+  "darkColor": "#69dccc",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/environment-variables",
+              "configuration/project-structure"
+            ]
+          },
+          {
+            "group": "Commands",
+            "pages": [
+              "commands/overview",
+              "commands/push",
+              "commands/fetch",
+              "commands/merge",
+              "commands/build",
+              "commands/status",
+              "commands/remote",
+              "commands/abort"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/sync-workflow",
+              "guides/conflict-resolution",
+              "guides/assets-and-images"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/manifest-file",
+              "reference/authentication",
+              "reference/troubleshooting"
+            ]
+          },
+          {
+            "group": "Changelog",
+            "pages": [
+              "changelog"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Push local HTML pages, posts, and templates to WordPress",
+    "Fetch remote WordPress content to local files",
+    "Diff-based merge conflict resolution",
+    "Build system that inlines components and assets into dist HTML",
+    "Image upload and CDN URL caching via manifest",
+    "HMAC-SHA256 signed API authentication",
+    "Incremental sync via MD5 hash manifest"
+  ],
+  "publicApiSurface": [
+    "faisanbridge push [--force]",
+    "faisanbridge fetch",
+    "faisanbridge merge",
+    "faisanbridge build",
+    "faisanbridge status",
+    "faisanbridge remote",
+    "faisanbridge abort"
+  ]
+}
