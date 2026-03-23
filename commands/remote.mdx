@@ -1,0 +1,62 @@
+---
+title: remote
+description: Verify connectivity to your WordPress site and confirm the Faisan Bridge plugin is reachable.
+---
+
+```bash
+npm run faisanbridge remote
+```
+
+The `remote` command sends a `GET` request to `/wp-json/faisanbridge/v1/remote` and prints whether the WordPress site is reachable and responding correctly. Use it to confirm your environment is configured before running `push` or `fetch`.
+
+## What it does
+
+- Calls `GET /wp-json/faisanbridge/v1/remote`.
+- Prints a success message if the server responds with a `2xx` status.
+- Prints a descriptive error for `401` and other HTTP error responses.
+
+## Example output
+
+Successful connection:
+
+```bash
+npm run faisanbridge remote
+```
+
+```
+Remote: Is OK
+```
+
+## Error handling
+
+### 401 Unauthorized
+
+```
+❌ Error In Authentication (401):
+   1. The API Keys in your .env file do not match the server's.
+   2. The server is not running.
+   3. The access to faisanbrige is disabled.
+```
+
+Check the following:
+
+1. Your `.env` file contains the correct `FAISAN_API_KEY` and `FAISAN_SECRET_KEY` values matching those configured in the WordPress plugin.
+2. The WordPress site is running and accessible at the URL in your `.env`.
+3. The Faisan Bridge plugin is installed, activated, and access is enabled in its settings.
+
+### Other HTTP errors
+
+For any non-`2xx` response other than `401`, the CLI will print the HTTP status code and the response body to help diagnose the issue.
+
+<Tip>
+  Run `remote` first whenever you set up a new project or change your API credentials — it is the fastest way to confirm your configuration is correct.
+</Tip>
+
+<CardGroup cols={2}>
+  <Card title="push" icon="upload" href="/commands/push">
+    Send compiled files to WordPress once the remote is confirmed.
+  </Card>
+  <Card title="Environment variables" icon="gear" href="/configuration/environment-variables">
+    Configure your API keys and WordPress site URL.
+  </Card>
+</CardGroup>

@@ -1,0 +1,20 @@
+---
+title: "Changelog"
+description: "Release history for the Faisan Bridge CLI."
+---
+
+<Update label="0.0.4">
+  Added support for background images. The CLI now detects CSS `background-image` URL references in compiled HTML and uploads the referenced image files to WordPress, replacing local paths with remote CDN URLs.
+</Update>
+
+<Update label="0.0.3">
+  Added support for assets. Non-image assets such as CSS and JavaScript files referenced in your HTML are now resolved and inlined or rewritten at build time.
+</Update>
+
+<Update label="0.0.2">
+  Added support for components. HTML files in `src/components/` can now be referenced with `data-faisan-component` attributes and are inlined into pages, posts, and templates during the build step.
+</Update>
+
+<Update label="0.0.1">
+  Initial release of the Faisan Bridge CLI. Core commands — `push`, `fetch`, `merge`, `build`, `status`, `remote`, and `abort` — are available. HMAC-SHA256 authentication and incremental sync via `faisan-manifest.json` are included from the start.
+</Update>

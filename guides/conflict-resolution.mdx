@@ -1,0 +1,109 @@
+---
+title: 'Conflict resolution'
+description: 'How to read and resolve merge conflicts when local and remote WordPress content have both changed.'
+---
+
+A conflict occurs when the same page has been edited both locally and in WordPress since the last sync. Faisan Bridge detects this during `faisanbridge merge` and writes a diff file so you can decide which content to keep.
+
+## When conflicts occur
+
+Conflicts happen when:
+
+- You edited `src/pages/<slug>/index.html` locally, **and**
+- Someone also edited that page directly in WordPress before you pushed.
+
+If only one side changed, the merge completes automatically with no conflict.
+
+## The `index-diff.html` file
+
+When a conflict is detected, the CLI writes `index-diff.html` into the page directory alongside `index.html`. This file contains the full page HTML with conflict markers inserted at every section where the two versions differ.
+
+Conflict markers use the following format:
+
+```html
+<<<<<<< HEAD (Local)
+<p>This is the local version of the content.</p>
+=======
+<p>This is the WordPress version of the content.</p>
+>>>>>>> REMOTE (WordPress)
+```
+
+| Marker | Meaning |
+|--------|--------|
+| `<<<<<<< HEAD (Local)` | Start of the local (your) version |
+| `=======` | Separator between local and remote |
+| `>>>>>>> REMOTE (WordPress)` | End of the remote (WordPress) version |
+
+## Resolving conflicts step by step
+
+<Steps>
+  <Step title="Open the diff file">
+    Open `index-diff.html` in your editor. Search for `<<<<<<<` to find each conflict block.
+  </Step>
+
+  <Step title="Choose or combine the content">
+    For each conflict block, decide which version to keep — local, remote, or a combination of both. Edit the block so only the final content remains.
+
+    **Before:**
+
+    ```html
+    <<<<<<< HEAD (Local)
+    <h2>Our story</h2>
+    <p>Founded in 2019.</p>
+    =======
+    <h2>Our story</h2>
+    <p>Founded in 2018.</p>
+    >>>>>>> REMOTE (WordPress)
+    ```
+
+    **After (keeping the remote date):**
+
+    ```html
+    <h2>Our story</h2>
+    <p>Founded in 2018.</p>
+    ```
+  </Step>
+
+  <Step title="Remove all conflict markers">
+    Make sure no `<<<<<<< HEAD (Local)`, `=======`, or `>>>>>>> REMOTE (WordPress)` lines remain in the file. The CLI detects conflicts by scanning for these markers — any leftover marker will cause the merge to fail again.
+  </Step>
+
+  <Step title="Run merge again to finalize">
+    Once the markers are removed, run the merge command again:
+
+    ```bash
+    faisanbridge merge
+    ```
+
+    The CLI detects that `index-diff.html` contains no conflict markers and consolidates it into `index.html`. The diff file is then removed.
+  </Step>
+</Steps>
+
+<Tip>
+  Use your editor's built-in conflict resolution UI if it supports standard Git-style conflict markers — the format is compatible.
+</Tip>
+
+## Aborting a merge
+
+<Warning>
+  Aborting discards all remote changes for the affected page. Any edits made in WordPress since your last push will be lost.
+</Warning>
+
+If you want to discard the remote content and keep only your local version:
+
+```bash
+faisanbridge merge --abort
+```
+
+This deletes `index-pending-to-merge.html` and `index-diff.html` for all pages and leaves `index.html` unchanged.
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Sync workflow" icon="arrows-rotate" href="/guides/sync-workflow">
+    Review the full edit → build → push loop and how incremental sync works.
+  </Card>
+  <Card title="Assets and images" icon="image" href="/guides/assets-and-images">
+    Learn how images are uploaded and how fetch reverses remote URLs to local paths.
+  </Card>
+</Columns>

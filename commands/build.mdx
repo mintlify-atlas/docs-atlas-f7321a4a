@@ -1,0 +1,120 @@
+---
+title: build
+description: Compile source HTML — inlining components and assets — and output to dist/.
+---
+
+```bash
+npm run faisanbridge build
+```
+
+The `build` command processes every `index.html` in `src/pages/`, `src/posts/`, and `src/templates/`, transpiles components and assets, and writes the resulting files to `dist/`.
+
+## What it does
+
+<Steps>
+  <Step title="Clean the output folder">
+    Removes the `dist/` folder entirely before building.
+  </Step>
+  <Step title="Read source files">
+    Scans `src/pages/`, `src/posts/`, and `src/templates/` for `<slug>/index.html` files.
+  </Step>
+  <Step title="Transpile components">
+    Replaces `<div data-faisan-component>` elements with the content of the referenced HTML partial, substituting template variables.
+
+    ```html
+    <!-- Before build -->
+    <div data-faisan-component="card" data-faisan-key="title">My Title</div>
+
+    <!-- After build (card.html contains: <div class="card"><h2>{{title}}</h2></div>) -->
+    <div class="card"><h2>My Title</h2></div>
+    ```
+  </Step>
+  <Step title="Inline assets">
+    - Replaces `<link data-faisan-asset>` tags with inline `<style>` blocks.
+    - Replaces `<script data-faisan-asset>` tags with inline `<script>` blocks.
+  </Step>
+  <Step title="Remove dev loader tags">
+    Strips any `<script>` tags referencing `dev-loader.js`.
+  </Step>
+  <Step title="Write to dist/">
+    Writes the compiled file to `dist/<type>/<slug>.html`.
+  </Step>
+</Steps>
+
+## Component transpilation
+
+Components are HTML partials referenced with `data-faisan-component` and `data-faisan-key` attributes on a `<div>`.
+
+```html
+<!-- src/pages/home/index.html -->
+<div data-faisan-component="hero" data-faisan-key="headline">Welcome</div>
+```
+
+The build step finds the component file, reads its content, and replaces every `{{headline}}` placeholder with the value from `data-faisan-key`.
+
+```html
+<!-- components/hero.html -->
+<section class="hero">
+  <h1>{{headline}}</h1>
+</section>
+```
+
+```html
+<!-- dist/pages/home.html (after build) -->
+<section class="hero">
+  <h1>Welcome</h1>
+</section>
+```
+
+## Asset inlining
+
+Stylesheets and scripts marked with `data-faisan-asset` are replaced with their inline equivalents:
+
+```html
+<!-- Before -->
+<link rel="stylesheet" href="/assets/styles.css" data-faisan-asset>
+<script src="/assets/app.js" data-faisan-asset></script>
+
+<!-- After -->
+<style>/* contents of styles.css */</style>
+<script>/* contents of app.js */</script>
+```
+
+## Output structure
+
+```
+dist/
+├── pages/
+│   └── my-page.html
+├── posts/
+│   └── hello-world.html
+└── templates/
+    └── home-template.html
+```
+
+## Example output
+
+```bash
+npm run faisanbridge build
+```
+
+```
+Building...
+Built: dist/pages/my-page.html
+Built: dist/posts/hello-world.html
+Built: dist/templates/home-template.html
+Done.
+```
+
+<Tip>
+  Always run `build` before `push`. The `push` command reads compiled files from `dist/`, not raw source from `src/`.
+</Tip>
+
+<CardGroup cols={2}>
+  <Card title="push" icon="upload" href="/commands/push">
+    Send the compiled dist/ files to WordPress.
+  </Card>
+  <Card title="status" icon="list-check" href="/commands/status">
+    Check which files are pending merge or have conflicts.
+  </Card>
+</CardGroup>

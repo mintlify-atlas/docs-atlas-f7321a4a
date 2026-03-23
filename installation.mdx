@@ -1,0 +1,58 @@
+---
+title: "Installation"
+description: "Install the Faisan Bridge CLI globally using npm."
+---
+
+## Requirements
+
+- **Node.js 18 or later**
+- **npm** (bundled with Node.js)
+- The **Faisan Bridge plugin** installed and activated on your WordPress site
+
+## Install the CLI
+
+Install `faisanbridge` globally so it is available in any directory:
+
+<CodeGroup>
+
+```bash npm
+npm install -g faisanbridge
+```
+
+```bash yarn
+yarn global add faisanbridge
+```
+
+```bash pnpm
+pnpm add -g faisanbridge
+```
+
+</CodeGroup>
+
+## Verify the installation
+
+Confirm the CLI is installed and available on your `PATH`:
+
+```bash
+faisanbridge --help
+```
+
+You should see the list of available commands: `push`, `fetch`, `build`, `merge`, `abort`, `status`, and `remote`.
+
+<Note>
+  If the command is not found after installation, ensure your npm global `bin` directory is on your `PATH`. Run `npm bin -g` to find its location.
+</Note>
+
+## WordPress plugin requirement
+
+The CLI communicates with WordPress through the **Faisan Bridge plugin**. You must install and activate this plugin on your WordPress site before you can push or fetch content. Once activated, the plugin provides the API credentials (`FAISAN_PUBLIC_KEY` and `FAISAN_SECRET_KEY`) you will use in your project configuration.
+
+<Warning>
+  Pushing content without the plugin installed on the server will result in an authentication error.
+</Warning>
+
+## Next steps
+
+<Card title="Quickstart" icon="rocket" href="/quickstart">
+  Configure your credentials and push your first page to WordPress.
+</Card>

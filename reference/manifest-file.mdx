@@ -1,0 +1,114 @@
+---
+title: "Manifest file"
+description: "How faisan-manifest.json tracks sync state and caches image CDN URLs for incremental publishing."
+---
+
+`faisan-manifest.json` is a local tracking file that Faisan Bridge CLI writes to the root of your project. It records the MD5 hash of every compiled file you have pushed to WordPress, so subsequent runs can skip files that haven't changed.
+
+## Location
+
+The file is written to your project root alongside `package.json` and `.env`:
+
+```
+your-project/
+├── .env
+├── faisan-manifest.json   ← generated automatically
+├── package.json
+├── src/
+└── dist/
+```
+
+<Note>
+You do not need to create `faisan-manifest.json` manually. The CLI creates and updates it automatically during `push` and `fetch` operations.
+</Note>
+
+## Structure
+
+```typescript
+interface FaisanFileEntry {
+    hash: string;   // MD5 hex digest of the compiled file content
+    url?: string;   // Remote CDN URL — only present for image assets
+}
+
+interface FaisanManifest {
+    last_publish?: string;  // ISO timestamp of the last successful push
+    files: {
+        [key: string]: FaisanFileEntry;
+    };
+}
+```
+
+### Example
+
+```json
+{
+  "files": {
+    "pages/about": {
+      "hash": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "posts/hello-world": {
+      "hash": "5e4d5c2b9a1f3e7d6c8b4a2e9f1d3c5b"
+    },
+    "assets/images/hero.jpg": {
+      "hash": "9a3f2c1b8e7d4a6c5b9e2f1d3c8a7b4e",
+      "url": "https://yoursite.com/wp-content/uploads/2024/01/hero.jpg"
+    }
+  }
+}
+```
+
+## File entry fields
+
+<ResponseField name="hash" type="string" required>
+  MD5 hex digest of the compiled file content. The CLI compares this against the current file before deciding whether to push.
+</ResponseField>
+
+<ResponseField name="url" type="string">
+  Remote CDN URL for the uploaded image. Only present on `assets/images/*` entries. When this field exists, the CLI skips re-uploading the image and substitutes this URL directly into the compiled HTML.
+</ResponseField>
+
+## Key format
+
+Each key in `files` is a relative path that matches the compiled output structure:
+
+| Key pattern | WordPress post type |
+|---|---|
+| `pages/<slug>` | `page` |
+| `posts/<slug>` | `post` |
+| `assets/images/<filename>` | image upload (not a post) |
+
+The slug matches the source filename without the `.html` extension. For example, `src/pages/about.html` compiles to `dist/pages/about.html` and is tracked as `pages/about`.
+
+## How incremental sync works
+
+When you run `faisanbridge push`, the CLI:
+
+1. Builds your source files into `dist/`.
+2. Reads `faisan-manifest.json` to find the last known hash for each file.
+3. Computes the MD5 hash of each compiled file.
+4. Skips any file whose hash matches the manifest — nothing has changed.
+5. Pushes only files with a different hash, then updates the manifest with the new hash.
+
+This means a push with no content changes completes instantly and sends zero requests to WordPress.
+
+## How image CDN caching works
+
+When the CLI uploads an image to WordPress for the first time, it receives a remote CDN URL in the response. It writes that URL to the manifest under the `url` field. On future pushes, when the image hash hasn't changed, the CLI reads the cached URL from the manifest and uses it to rewrite `src` attributes in the HTML — without uploading the image again.
+
+<Tip>
+If you want to force an image to re-upload (for example, after replacing a file while keeping the same name), delete the corresponding entry from `faisan-manifest.json` and run `push` again.
+</Tip>
+
+## Should you commit `faisan-manifest.json` to git?
+
+Yes. Commit `faisan-manifest.json` to your repository.
+
+The manifest is the source of truth for what has been synced to WordPress. Committing it means:
+
+- Team members share the same sync state — no one re-uploads unchanged files.
+- Cached image CDN URLs are preserved across machines.
+- You can audit the history of what was published and when.
+
+<Warning>
+If you delete or ignore the manifest, the CLI loses track of previous hashes and will push every file on the next run, even if nothing has changed. It will also re-upload all images, creating duplicate media entries in WordPress.
+</Warning>

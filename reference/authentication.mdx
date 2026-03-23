@@ -1,0 +1,108 @@
+---
+title: "Authentication"
+description: "How Faisan Bridge CLI authenticates API requests using HMAC-SHA256 signed headers."
+---
+
+Every request from the CLI to your WordPress site is authenticated using a pair of API keys and an HMAC-SHA256 signature. This prevents unauthorized access and protects against replay attacks.
+
+## Environment variables
+
+Create a `.env` file in your project root with the following two variables:
+
+```bash .env
+FAISAN_PUBLIC_KEY=your_public_key_here
+FAISAN_SECRET_KEY=your_secret_key_here
+```
+
+<ResponseField name="FAISAN_PUBLIC_KEY" type="string" required>
+  The public identifier sent with every request in the `X-Faisan-Public` header. WordPress uses this to look up the corresponding secret key.
+</ResponseField>
+
+<ResponseField name="FAISAN_SECRET_KEY" type="string" required>
+  The private key used to sign requests. Never share this value or commit it to version control. WordPress uses it to verify the request signature.
+</ResponseField>
+
+<Warning>
+Add `.env` to your `.gitignore`. Committing your secret key exposes your WordPress site to unauthorized writes.
+</Warning>
+
+### Where to find your keys
+
+Log in to your WordPress admin panel and navigate to **Faisan Bridge** in the left sidebar. Your public and secret keys are displayed in the plugin settings page. Copy them into your `.env` file.
+
+## How signing works
+
+The CLI signs each request with HMAC-SHA256 using your secret key and the current Unix timestamp. The signature is computed differently depending on the request type.
+
+### POST requests (push, upload)
+
+For `push` requests, the signature covers both the timestamp and the serialized request body:
+
+```typescript
+const timestamp = Math.floor(Date.now() / 1000).toString();
+const signature = crypto
+  .createHmac('sha256', FAISAN_SECRET_KEY)
+  .update(timestamp + bodyString)   // timestamp concatenated with JSON body
+  .digest('hex');
+```
+
+### Image upload
+
+For `upload` requests (which use `multipart/form-data`), the signature covers only the timestamp:
+
+```typescript
+const timestamp = Math.floor(Date.now() / 1000).toString();
+const signature = crypto
+  .createHmac('sha256', FAISAN_SECRET_KEY)
+  .update(timestamp)   // timestamp only
+  .digest('hex');
+```
+
+### GET requests (fetch, remote)
+
+GET requests also sign over the timestamp only (no body):
+
+```typescript
+const timestamp = Math.floor(Date.now() / 1000).toString();
+const signature = crypto
+  .createHmac('sha256', FAISAN_SECRET_KEY)
+  .update(timestamp)
+  .digest('hex');
+```
+
+## Request headers
+
+The CLI attaches three headers to every API request:
+
+| Header | Value |
+|---|---|
+| `X-Faisan-Public` | Your `FAISAN_PUBLIC_KEY` |
+| `X-Faisan-Signature` | The HMAC-SHA256 hex digest |
+| `X-Faisan-Timestamp` | Current Unix timestamp (seconds) |
+
+## Replay attack prevention
+
+The timestamp in `X-Faisan-Timestamp` is included in the signature. The Faisan Bridge plugin on WordPress rejects requests where the timestamp is outside a short acceptable window. This means a captured request cannot be replayed later by an attacker, even if they intercept the headers.
+
+<Note>
+Ensure your local machine's clock is synchronized (for example, via NTP). A clock skew of more than the server's allowed window will cause all requests to be rejected with a 401 error.
+</Note>
+
+## 401 errors
+
+A `401 Unauthorized` response means the server rejected your credentials. Common causes:
+
+<AccordionGroup>
+  <Accordion title="API keys don't match">
+    The `FAISAN_PUBLIC_KEY` or `FAISAN_SECRET_KEY` in your `.env` doesn't match what is configured in the WordPress plugin settings. Copy the keys again from **WordPress admin → Faisan Bridge** and update your `.env`.
+  </Accordion>
+  <Accordion title="Faisan Bridge plugin is disabled">
+    The plugin must be active on your WordPress site. Go to **WordPress admin → Plugins** and confirm that Faisan Bridge is installed and activated.
+  </Accordion>
+  <Accordion title="WordPress site is unreachable">
+    If the server is down or the domain is wrong, the request never reaches the plugin and WordPress may return a 401 or connection error. Verify the site URL in your `.env` and run `faisanbridge remote` to test the connection.
+  </Accordion>
+  <Accordion title="Clock skew">
+    If your machine's clock is significantly out of sync with the server's clock, the timestamp check will fail. Synchronize your system clock and retry.
+  </Accordion>
+</AccordionGroup>

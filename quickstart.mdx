@@ -1,80 +1,138 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+description: "Configure the CLI, create your first page, and push it to WordPress in minutes."
 ---
 
-## Get started in three steps
+This guide walks you through setting up a Faisan Bridge project from scratch and syncing your first page to WordPress.
 
-Get your documentation site running locally and make your first customization.
+<Steps>
 
-### Step 1: Set up your local environment
+  <Step title="Install the CLI">
+    Install `faisanbridge` globally:
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+    ```bash
+    npm install -g faisanbridge
+    ```
 
-### Step 2: Deploy your changes
+    Verify the installation:
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    ```bash
+    faisanbridge --help
+    ```
+  </Step>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+  <Step title="Create your .env file">
+    In the root of your project, create a `.env` file with your WordPress site URL and Faisan Bridge API credentials:
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+    ```bash .env
+    FAISAN_PUBLIC_KEY=your_public_key
+    FAISAN_SECRET_KEY=your_secret_key
+    WORDPRESS_URL=https://your-wordpress-site.com
+    ```
 
-### Step 3: Go live
+    <Tip>
+      You can find `FAISAN_PUBLIC_KEY` and `FAISAN_SECRET_KEY` in the Faisan Bridge plugin settings inside your WordPress admin dashboard.
+    </Tip>
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+    <Warning>
+      Never commit your `.env` file to version control. Add it to your `.gitignore`.
+    </Warning>
+  </Step>
 
-## Next steps
+  <Step title="Create your project structure">
+    Create the source directory and add your first page:
 
-Now that you have your docs running, explore these key features:
+    ```bash
+    mkdir -p src/pages/my-page
+    ```
+
+    Create `src/pages/my-page/index.html` with your page content:
+
+    ```html src/pages/my-page/index.html
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>My Page</title>
+      </head>
+      <body>
+        <h1>Hello from Faisan Bridge</h1>
+        <p>This content is managed locally and synced to WordPress.</p>
+      </body>
+    </html>
+    ```
+
+    The full project structure supports pages, posts, templates, and components:
+
+    <Tree>
+      <Tree.Folder name="src" defaultOpen>
+        <Tree.Folder name="pages" defaultOpen>
+          <Tree.Folder name="my-page" defaultOpen>
+            <Tree.File name="index.html" />
+          </Tree.Folder>
+        </Tree.Folder>
+        <Tree.Folder name="posts">
+          <Tree.File name="" />
+        </Tree.Folder>
+        <Tree.Folder name="templates">
+          <Tree.File name="" />
+        </Tree.Folder>
+        <Tree.Folder name="components">
+          <Tree.File name="" />
+        </Tree.Folder>
+      </Tree.Folder>
+      <Tree.File name=".env" />
+    </Tree>
+  </Step>
+
+  <Step title="Build your project">
+    Compile your source files into the `dist/` output directory:
+
+    ```bash
+    faisanbridge build
+    ```
+
+    This processes your HTML files and writes built output to `dist/pages/`, `dist/posts/`, and `dist/templates/`.
+  </Step>
+
+  <Step title="Push to WordPress">
+    Upload the built files to your WordPress site:
+
+    ```bash
+    faisanbridge push
+    ```
+
+    On the first push, a `faisan-manifest.json` file is created in your project root. This file tracks MD5 hashes of your content so that subsequent pushes only upload changed files.
+
+    <Note>
+      To push all files regardless of whether they have changed, use the `--force` flag:
+
+      ```bash
+      faisanbridge push --force
+      ```
+    </Note>
+  </Step>
+
+  <Step title="Check sync status">
+    Verify the state of your local project against what is live on WordPress:
+
+    ```bash
+    faisanbridge status
+    ```
+
+    This shows which local files are in sync, modified, or pending upload.
+  </Step>
+
+</Steps>
+
+## What's next
+
+Now that your first page is live, explore the rest of what Faisan Bridge CLI can do:
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Commands reference" icon="terminal" href="/commands/overview">
+    Full reference for all CLI commands and flags.
+  </Card>
+  <Card title="Project structure" icon="folder" href="/configuration/project-structure">
+    Learn how pages, posts, templates, and components work together.
+  </Card>
 </CardGroup>
-
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>

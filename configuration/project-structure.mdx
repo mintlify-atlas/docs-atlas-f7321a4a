@@ -1,0 +1,126 @@
+---
+title: 'Project structure'
+description: 'Overview of the expected directory layout for a Faisan Bridge project, including source files, components, assets, and build output.'
+---
+
+A Faisan Bridge project follows a conventional directory structure. The CLI expects source files in specific locations and writes build output to `dist/`.
+
+## Directory tree
+
+```
+your-project/
+├── src/
+│   ├── pages/
+│   │   └── <slug>/
+│   │       └── index.html
+│   ├── posts/
+│   │   └── <slug>/
+│   │       └── index.html
+│   ├── templates/
+│   │   └── <slug>/
+│   │       └── index.html
+│   └── components/
+│       └── header.html
+├── assets/
+│   └── images/
+│       └── logo.png
+├── dist/                     # Auto-generated, do not commit
+│   ├── pages/
+│   │   └── <slug>.html
+│   ├── posts/
+│   │   └── <slug>.html
+│   └── templates/
+│       └── <slug>.html
+├── faisan-manifest.json      # Auto-generated sync state
+├── .env                      # Credentials, do not commit
+└── package.json
+```
+
+## Source directories
+
+### `src/pages/`
+
+Contains page content. Each page lives in its own subdirectory named after the page slug, with an `index.html` file inside.
+
+### `src/posts/`
+
+Contains post content. Follows the same `<slug>/index.html` convention as pages.
+
+### `src/templates/`
+
+Contains template content. Follows the same `<slug>/index.html` convention.
+
+### `src/components/`
+
+Contains reusable HTML partials. Component files are referenced by filename and can accept variables for substitution at build time.
+
+### `assets/images/`
+
+Contains local images referenced in your HTML files. The CLI uploads images from this directory to the remote CDN during publish.
+
+## Build output
+
+The `dist/` directory is generated automatically when you run a build. The output mirrors the source structure, with each `<slug>/index.html` compiled to `<slug>.html`.
+
+<Warning>
+  Do not commit the `dist/` directory or `faisan-manifest.json` to version control unless you have a specific reason to. Add both to your `.gitignore`.
+
+  ```bash .gitignore
+  dist/
+  faisan-manifest.json
+  .env
+  ```
+</Warning>
+
+## Components
+
+Components are reusable HTML partials stored in `src/components/`. Include a component in any page, post, or template using the `data-faisan-component` attribute.
+
+```html
+<div data-faisan-component="header.html" data-faisan-title="My Title" data-faisan-subtitle="My Subtitle"></div>
+```
+
+The element is replaced with the contents of the referenced component file at build time. Any `data-faisan-<key>` attribute (other than `data-faisan-component` itself) is available as a `{{key}}` variable inside the component file.
+
+**Example component file** (`src/components/header.html`):
+
+```html
+<header>
+  <h1>{{title}}</h1>
+  <p>{{subtitle}}</p>
+</header>
+```
+
+## Asset inlining
+
+Add the `data-faisan-asset` attribute to `<link>` or `<script>` tags to inline the referenced file's contents directly into the built HTML output.
+
+```html
+<link href="styles.css" data-faisan-asset>
+<script src="app.js" data-faisan-asset></script>
+```
+
+<Tip>
+  Inlining assets removes the need for separate file requests, which can be useful for self-contained HTML files delivered through WordPress.
+</Tip>
+
+## The manifest file
+
+`faisan-manifest.json` is created and maintained automatically by the CLI. It records the last publish time and a hash for each tracked file, along with the remote CDN URL for uploaded images.
+
+```json faisan-manifest.json
+{
+  "last_publish": "2024-01-15T10:30:00.000Z",
+  "files": {
+    "dist/pages/about.html": {
+      "hash": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "assets/images/logo.png": {
+      "hash": "5d41402abc4b2a76b9719d911017c592",
+      "url": "https://cdn.yoursite.com/images/logo.png"
+    }
+  }
+}
+```
+
+The CLI uses file hashes to detect changes and skip unchanged files during publish.

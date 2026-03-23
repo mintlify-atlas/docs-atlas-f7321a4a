@@ -1,0 +1,89 @@
+---
+title: fetch
+description: Download the latest content from WordPress into local pending merge files.
+---
+
+```bash
+npm run faisanbridge fetch
+```
+
+The `fetch` command calls the Faisan Bridge REST API and downloads the current WordPress content for every tracked post, page, and template. Each downloaded file is saved alongside your local source as `index-pending-to-merge.html` — it does not overwrite your working files until you run [`merge`](/commands/merge).
+
+## What it does
+
+<Steps>
+  <Step title="Call the API">
+    Sends a `GET` request to `/wp-json/faisanbridge/v1/fetch`.
+  </Step>
+  <Step title="Save pending files">
+    For each item returned, writes the WordPress HTML to:
+
+    ```
+    src/<folder>/<post_name>/index-pending-to-merge.html
+    ```
+
+    Where `<folder>` is `pages`, `posts`, or `templates`.
+  </Step>
+  <Step title="Rewrite image paths">
+    Replaces WordPress upload URLs (e.g. `https://example.com/wp-content/uploads/...`) with local asset paths:
+
+    ```
+    /assets/images/<filename>
+    ```
+  </Step>
+  <Step title="Prompt to merge">
+    Prints a reminder to run `merge` to reconcile the fetched content with your local files.
+  </Step>
+</Steps>
+
+## Example output
+
+```bash
+npm run faisanbridge fetch
+```
+
+```
+Fetching from WordPress...
+Saved: src/pages/my-page/index-pending-to-merge.html
+Saved: src/posts/hello-world/index-pending-to-merge.html
+Saved: src/templates/home-template/index-pending-to-merge.html
+Done. Run 'npm run faisanbridge merge' to reconcile changes.
+```
+
+## After fetching
+
+Your `src/` directory will contain `index-pending-to-merge.html` files alongside your local `index.html` files. Your working files are untouched at this point.
+
+```
+src/
+└── pages/
+    └── my-page/
+        ├── index.html                    ← your local version (unchanged)
+        └── index-pending-to-merge.html   ← downloaded from WordPress
+```
+
+Run [`merge`](/commands/merge) next to combine the two versions.
+
+## Error handling
+
+### 401 Unauthorized
+
+```
+❌ Error In Authentication (401):
+   1. The API Keys in your .env file do not match the server's.
+   2. The server is not running.
+   3. The access to faisanbrige is disabled.
+```
+
+<Warning>
+  Do not manually edit `index-pending-to-merge.html` files. They are managed by the CLI and will be overwritten or removed by subsequent `fetch`, `merge`, or `abort` commands.
+</Warning>
+
+<CardGroup cols={2}>
+  <Card title="merge" icon="code-merge" href="/commands/merge">
+    Reconcile fetched content with your local files.
+  </Card>
+  <Card title="abort" icon="ban" href="/commands/abort">
+    Discard all pending merge files without merging.
+  </Card>
+</CardGroup>

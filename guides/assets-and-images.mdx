@@ -1,0 +1,104 @@
+---
+title: 'Assets and images'
+description: 'How Faisan Bridge handles images, CSS, and JavaScript assets during build, push, and fetch.'
+---
+
+Faisan Bridge processes images and static assets automatically. During a push, images are uploaded to WordPress and their URLs are substituted into the compiled HTML. During a fetch, those remote URLs are reversed back to local paths.
+
+## Storing images
+
+Place all images in the `assets/images/` directory:
+
+```
+assets/
+  images/
+    hero.jpg
+    team-photo.png
+    logo.svg
+```
+
+## Referencing images in HTML
+
+The CLI recognises two ways of referencing images. Both are processed on push.
+
+**`src` attribute:**
+
+```html
+<img src="/assets/images/hero.jpg" alt="Hero image" />
+```
+
+**CSS `background-image`:**
+
+```html
+<div style="background-image: url(/assets/images/hero.jpg)"></div>
+```
+
+<Note>
+  Both `src=` and CSS `background-image: url()` references are detected by the same regex, so you can use either pattern freely within a page.
+</Note>
+
+## How images are uploaded on push
+
+When you run `faisanbridge push`, the CLI scans compiled HTML for image references in `assets/images/`. For each image found:
+
+1. The image file is read from disk.
+2. A `POST` request is sent to `/wp-json/faisanbridge/v1/upload` using `multipart/form-data` with the image in the `image` field.
+3. The WordPress endpoint returns a public URL.
+4. The local path (`/assets/images/photo.jpg`) in the HTML is replaced with the returned WordPress URL.
+5. The URL and file hash are saved to the local manifest.
+
+## Manifest caching prevents re-uploads
+
+The manifest stores an entry for each uploaded image:
+
+```json
+{
+  "hash": "d41d8cd98f00b204e9800998ecf8427e",
+  "url": "https://example.com/wp-content/uploads/photo.jpg"
+}
+```
+
+On subsequent pushes, the CLI checks the MD5 hash of the local file against the stored hash. If they match, the cached URL is used directly and no upload request is made. Only new or modified images are uploaded.
+
+<Tip>
+  Rename or replace an image file to force a re-upload. Changing only the content of a file with the same name is enough — the MD5 hash will differ and the CLI will upload the new version.
+</Tip>
+
+## How fetch reverses remote URLs
+
+When you run `faisanbridge fetch`, the CLI downloads the current HTML from WordPress. Any WordPress upload URLs that match previously uploaded images are automatically replaced with their original local paths (e.g., `https://example.com/wp-content/uploads/photo.jpg` → `/assets/images/photo.jpg`). This keeps your local files consistent even after WordPress has processed or rehosted the images.
+
+## CSS asset inlining
+
+To inline a stylesheet's contents directly into the compiled HTML instead of linking to it, add the `data-faisan-asset` attribute to the `<link>` tag:
+
+```html
+<link rel="stylesheet" href="/assets/styles/main.css" data-faisan-asset />
+```
+
+During build, the CLI reads the referenced CSS file and replaces the `<link>` tag with an inline `<style>` block containing the file contents.
+
+## JS asset inlining
+
+To inline a JavaScript file, add `data-faisan-asset` to the `<script>` tag:
+
+```html
+<script src="/assets/scripts/app.js" data-faisan-asset></script>
+```
+
+During build, the CLI replaces the `<script src="...">` tag with an inline `<script>` block containing the file contents.
+
+<Warning>
+  Inlined assets increase the size of each HTML page sent to WordPress. Only inline small, page-critical files. Load larger scripts and stylesheets via external URLs instead.
+</Warning>
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Sync workflow" icon="arrows-rotate" href="/guides/sync-workflow">
+    Review the full edit → build → push loop, including how the manifest tracks changes.
+  </Card>
+  <Card title="Conflict resolution" icon="code-merge" href="/guides/conflict-resolution">
+    Learn how to resolve merge conflicts when local and remote content both change.
+  </Card>
+</Columns>

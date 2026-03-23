@@ -1,0 +1,102 @@
+---
+title: "Troubleshooting"
+description: "Solutions for common errors and warnings when using the Faisan Bridge CLI."
+---
+
+<AccordionGroup>
+
+  <Accordion title="401 Authentication error">
+    A `401 Unauthorized` response means the server rejected the request before processing it.
+
+    **Possible causes and fixes:**
+
+    - **Keys don't match** — The `FAISAN_PUBLIC_KEY` or `FAISAN_SECRET_KEY` in your `.env` doesn't match what the plugin has stored. Open **WordPress admin → Faisan Bridge** and copy the keys again.
+    - **Plugin is disabled** — Go to **WordPress admin → Plugins** and confirm Faisan Bridge is installed and activated.
+    - **Server is down** — Run `faisanbridge remote` to check whether the connection to WordPress is healthy. If it fails, verify the site URL in your `.env`.
+    - **Clock skew** — The HMAC signature includes a timestamp. If your system clock is more than the server's allowed window out of sync, all requests will be rejected. Synchronize your system clock via NTP and retry.
+
+    See [Authentication](/reference/authentication) for a full explanation of how signing works.
+  </Accordion>
+
+  <Accordion title="409 Conflict error">
+    A `409 Conflict` means the file you are pushing has been modified on WordPress since your last fetch. The server's current hash doesn't match the `parent_hash` the CLI sent.
+
+    **Fix:**
+
+    Run `faisanbridge fetch` to pull the latest version from WordPress, then `faisanbridge merge` to reconcile the differences. After resolving the conflict, push again.
+
+    If you are certain your local version is correct and want to overwrite the remote version without fetching first, add the `--force` flag:
+
+    ```bash
+    faisanbridge push --force
+    ```
+
+    <Warning>
+    Using `--force` discards the server's changes. Only use it when you are sure you want your local version to win.
+    </Warning>
+
+    See [Conflict resolution](/guides/conflict-resolution) for the full workflow.
+  </Accordion>
+
+  <Accordion title="Warning: Image not found locally">
+    The CLI prints `⚠️ Image not found locally` when it encounters an `<img src="...">` in your HTML that doesn't resolve to a file under `assets/images/`.
+
+    **Fix:**
+
+    Check that the image file exists at the path referenced in your HTML, relative to your project root. Image assets must live under `assets/images/`. For example, an `<img src="assets/images/hero.jpg">` requires the file to be present at `assets/images/hero.jpg`.
+
+    If the path is correct but the warning persists, confirm the filename casing matches exactly — file systems on Linux are case-sensitive.
+  </Accordion>
+
+  <Accordion title="Warning: Asset not found">
+    This warning appears when the CLI cannot locate a non-image asset (such as a CSS or JS file) referenced in your HTML.
+
+    **Fix:**
+
+    Asset paths in your HTML must be relative to the source page file. For example, if your page is `src/pages/about.html` and it references `../assets/style.css`, the file must exist at `src/assets/style.css`.
+
+    Double-check the path and ensure the file is present before running `build` or `push` again.
+  </Accordion>
+
+  <Accordion title="Push skips all files">
+    If `faisanbridge push` completes immediately and reports that no files were pushed, all of your compiled files match the hashes stored in `faisan-manifest.json`. This is expected behavior — the CLI skips unchanged files to keep syncs fast.
+
+    **What to check:**
+
+    - If you expected a file to be pushed, confirm you saved your changes and ran `faisanbridge build` to recompile the source into `dist/`.
+    - If you want to force-push a specific file regardless of its hash, use `--force`.
+    - If `faisan-manifest.json` is out of date or was shared from a different machine with different content, delete the relevant entry from the manifest and push again.
+  </Accordion>
+
+  <Accordion title="Component not found">
+    The CLI prints an error when it cannot locate a component referenced with a `data-faisan-component` attribute in your HTML.
+
+    **Fix:**
+
+    Components must be stored under `src/components/`. The `data-faisan-component` value should match the filename without extension. For example, `data-faisan-component="header"` expects a file at `src/components/header.html`.
+
+    Check that:
+    - The file exists at the correct path.
+    - The attribute value and filename casing match.
+    - You are running commands from the project root.
+  </Accordion>
+
+  <Accordion title="Build creates an empty dist/ folder">
+    If `faisanbridge build` completes but `dist/` is empty or missing files, the CLI found nothing to compile in your `src/` folder.
+
+    **Fix:**
+
+    Ensure your project follows the expected source structure:
+
+    ```
+    src/
+    ├── pages/      ← .html files become WordPress pages
+    ├── posts/      ← .html files become WordPress posts
+    ├── templates/  ← .html files become faisan_template entries
+    └── components/ ← reusable HTML partials
+    ```
+
+    Pages, posts, and templates must be `.html` files placed in their respective subdirectories. Files placed directly in `src/` without a recognized subfolder are not compiled.
+  </Accordion>
+
+</AccordionGroup>

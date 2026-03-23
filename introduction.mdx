@@ -1,0 +1,54 @@
+---
+title: "Introduction"
+description: "Faisan Bridge CLI lets you edit WordPress content in your local IDE and sync it to your site."
+---
+
+Faisan Bridge CLI (`faisanbridge`) is a command-line tool that bridges your local development environment and a WordPress site. You write HTML locally, build it, and push it to WordPress — no copy-pasting into the block editor required.
+
+## The problem it solves
+
+WordPress's built-in editor is inconvenient for developers who want to:
+
+- Work in a local IDE with version control
+- Manage page content as plain HTML files
+- Automate content deployments as part of a build pipeline
+
+Faisan Bridge CLI solves this by treating your WordPress pages and posts as local source files you can edit, build, and deploy like any other code.
+
+## How it works
+
+```mermaid
+flowchart LR
+    A[Write HTML locally] --> B[faisanbridge build]
+    B --> C[faisanbridge push]
+    C --> D[WordPress site updated]
+```
+
+1. You write HTML files under `src/pages/` and `src/posts/`.
+2. `faisanbridge build` compiles your source into `dist/`, inlining components and resolving assets.
+3. `faisanbridge push` uploads the built output to WordPress via the Faisan Bridge plugin.
+4. A `faisan-manifest.json` file tracks MD5 hashes so only changed files are sent on subsequent pushes.
+
+## Prerequisites
+
+Before you start, make sure you have:
+
+- **Node.js 18 or later** installed on your machine
+- **npm** (bundled with Node.js)
+- A **WordPress site** with the **Faisan Bridge plugin** installed and activated
+- API credentials from the Faisan Bridge plugin (`FAISAN_PUBLIC_KEY` and `FAISAN_SECRET_KEY`)
+
+<Warning>
+  The CLI requires the Faisan Bridge WordPress plugin on the server side. The CLI alone cannot sync content without it.
+</Warning>
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Install the CLI globally with npm.
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Set up your first project and push content to WordPress.
+  </Card>
+</Columns>

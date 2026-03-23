@@ -1,0 +1,72 @@
+---
+title: 'Environment variables'
+description: 'Configure API credentials and WordPress connection using a .env file in your project root.'
+---
+
+The Faisan Bridge CLI reads credentials from a `.env` file in your project root using `dotenv`. These variables are loaded automatically at CLI startup.
+
+## Required variables
+
+| Variable | Description |
+| --- | --- |
+| `FAISAN_PUBLIC_KEY` | Public API key from the WordPress Faisan Bridge plugin settings |
+| `FAISAN_SECRET_KEY` | Secret key used for HMAC-SHA256 request signing |
+| `WORDPRESS_URL` | Full URL of your WordPress site, including scheme |
+
+## Setup
+
+<Steps>
+  <Step title="Locate your API keys">
+    Open your WordPress admin dashboard and navigate to the Faisan Bridge plugin settings. Copy your public key and secret key.
+  </Step>
+  <Step title="Create a .env file">
+    In the root of your project, create a file named `.env`:
+
+    ```bash
+    touch .env
+    ```
+  </Step>
+  <Step title="Add your credentials">
+    Populate the file with your values:
+
+    ```bash .env
+    FAISAN_PUBLIC_KEY=your_public_key_here
+    FAISAN_SECRET_KEY=your_secret_key_here
+    WORDPRESS_URL=https://yoursite.com
+    ```
+  </Step>
+</Steps>
+
+## Variable reference
+
+### `FAISAN_PUBLIC_KEY`
+
+The public API key issued by the WordPress Faisan Bridge plugin. Used to identify your project when making API requests.
+
+### `FAISAN_SECRET_KEY`
+
+The secret key used to sign API requests with HMAC-SHA256. Keep this value private.
+
+### `WORDPRESS_URL`
+
+The base URL of your WordPress installation. Must include the URL scheme (`https://` or `http://`).
+
+<Warning>
+  Do not include a trailing slash. Use `https://yoursite.com`, not `https://yoursite.com/`.
+</Warning>
+
+## Example `.env` file
+
+```bash .env
+FAISAN_PUBLIC_KEY=pk_a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4
+FAISAN_SECRET_KEY=sk_9z8y7x6w5v4u3t2s1r0q9z8y7x6w5v4u
+WORDPRESS_URL=https://yoursite.com
+```
+
+<Warning>
+  Never commit your `.env` file to version control. Add it to your `.gitignore` to prevent accidentally exposing your credentials.
+
+  ```bash .gitignore
+  .env
+  ```
+</Warning>

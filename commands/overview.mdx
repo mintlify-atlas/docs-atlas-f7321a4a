@@ -1,0 +1,62 @@
+---
+title: Commands overview
+description: A reference for every command available in the Faisan Bridge CLI.
+---
+
+The Faisan Bridge CLI exposes eight commands. Each command maps to a specific stage of the local-to-WordPress sync workflow.
+
+<CardGroup cols={2}>
+  <Card title="push" icon="upload" href="/commands/push">
+    Compile and send local HTML files to WordPress. Skips unchanged files using MD5 tracking.
+  </Card>
+  <Card title="fetch" icon="download" href="/commands/fetch">
+    Download the latest content from WordPress into pending merge files.
+  </Card>
+  <Card title="merge" icon="code-merge" href="/commands/merge">
+    Reconcile fetched WordPress content with your local files, auto-merging where possible.
+  </Card>
+  <Card title="build" icon="hammer" href="/commands/build">
+    Compile source HTML — inlining components and assets — and output to `dist/`.
+  </Card>
+  <Card title="status" icon="list-check" href="/commands/status">
+    Report files that are pending merge or have unresolved conflicts.
+  </Card>
+  <Card title="remote" icon="wifi" href="/commands/remote">
+    Verify connectivity to the WordPress site and confirm the plugin is reachable.
+  </Card>
+  <Card title="abort" icon="ban" href="/commands/abort">
+    Discard all pending merge and conflict files, returning to a clean state.
+  </Card>
+</CardGroup>
+
+## Command summary
+
+| Command | Description | Network |
+|---------|-------------|--------|
+| `build` | Compile `src/` into `dist/` | No |
+| `push` | Send `dist/` files to WordPress | Yes |
+| `fetch` | Download WordPress content locally | Yes |
+| `merge` | Merge fetched content into `src/` | No |
+| `status` | Show pending and conflicting files | No |
+| `remote` | Check WordPress connection | Yes |
+| `abort` | Remove all pending/conflict files | No |
+
+## Typical workflow
+
+```bash
+# 1. Author your pages in src/, then compile
+npm run faisanbridge build
+
+# 2. Send to WordPress
+npm run faisanbridge push
+
+# 3. Pull any changes made in WordPress
+npm run faisanbridge fetch
+
+# 4. Reconcile local and remote differences
+npm run faisanbridge merge
+```
+
+<Note>
+  Run `build` before `push`. The `push` command reads from `dist/`, not `src/`.
+</Note>

@@ -1,97 +1,70 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "Faisan Bridge CLI"
+description: "Sync your local HTML components with WordPress — build, push, fetch, and merge with a single command."
 ---
 
-## Setting up
-
-Get your documentation site up and running in minutes.
-
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Install the CLI globally via npm and get set up in minutes.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Connect to your WordPress site and push your first page.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Command Reference" icon="terminal" href="/commands/overview">
+    Browse every command, flag, and option available in the CLI.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Configuration" icon="gear" href="/configuration/environment-variables">
+    Set up your `.env` file and project structure.
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## What is Faisan Bridge?
 
-Everything you need to create world-class documentation.
+Faisan Bridge CLI is a developer tool that connects your local IDE to a WordPress site running the Faisan Bridge plugin. It lets you author pages, posts, and templates as plain HTML files locally, then sync them to WordPress over a secure, signed API.
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
+<CardGroup cols={3}>
+  <Card title="Push" icon="upload" href="/commands/push">
+    Send local changes to WordPress as draft posts.
   </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
+  <Card title="Fetch" icon="download" href="/commands/fetch">
+    Pull the latest content from WordPress to your local files.
   </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
+  <Card title="Merge" icon="code-merge" href="/commands/merge">
+    Resolve conflicts between local and remote versions.
   </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
+  <Card title="Build" icon="hammer" href="/commands/build">
+    Compile your source HTML, inlining components and assets.
   </Card>
-</Columns>
+  <Card title="Status" icon="list-check" href="/commands/status">
+    See which files are pending merge or have conflicts.
+  </Card>
+  <Card title="Remote" icon="wifi" href="/commands/remote">
+    Verify the connection to your WordPress site is alive.
+  </Card>
+</CardGroup>
 
-## Need inspiration?
+## How it works
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+<Steps>
+  <Step title="Author locally">
+    Write HTML pages, posts, and templates in `src/pages/`, `src/posts/`, and `src/templates/`. Use reusable components with `data-faisan-component` attributes.
+  </Step>
+  <Step title="Build">
+    Run `faisanbridge build` to compile your source HTML — inlining components and local assets — into the `dist/` folder.
+  </Step>
+  <Step title="Push to WordPress">
+    Run `faisanbridge push` to send your compiled HTML to WordPress via the Faisan Bridge REST API. Only changed files (tracked by MD5 hash) are uploaded.
+  </Step>
+  <Step title="Fetch and merge">
+    Run `faisanbridge fetch` to pull any changes made in WordPress, then `faisanbridge merge` to reconcile differences with your local files.
+  </Step>
+</Steps>
+
+## Key features
+
+- **Incremental sync** — Only files whose content has changed (tracked by MD5 hash in `faisan-manifest.json`) are pushed, keeping syncs fast.
+- **Secure authentication** — Every API request is signed with HMAC-SHA256 using your secret key and a timestamp, preventing replay attacks.
+- **Component system** — Use `data-faisan-component` attributes to reference reusable HTML partials that are inlined at build time.
+- **Asset handling** — Images referenced in your HTML are automatically uploaded to WordPress and their local paths are replaced with remote CDN URLs.
+- **Conflict resolution** — When local and remote HTML differ, the CLI produces a diff file with `<<<<<<< HEAD` / `>>>>>>> REMOTE` markers for manual resolution.
+- **Supports pages, posts, and templates** — Sync standard WordPress post types as well as custom `faisan_template` entries.

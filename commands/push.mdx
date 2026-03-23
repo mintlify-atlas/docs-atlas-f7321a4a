@@ -1,0 +1,122 @@
+---
+title: push
+description: Send compiled HTML files from your local dist/ folder to WordPress.
+---
+
+```bash
+npm run faisanbridge push [--force]
+```
+
+The `push` command reads every HTML file from `dist/pages/`, `dist/posts/`, and `dist/templates/`, checks whether the file has changed since the last sync, and sends any changed files to WordPress via the Faisan Bridge REST API.
+
+<Note>
+  Run [`build`](/commands/build) before `push`. The command reads from `dist/`, not `src/`.
+</Note>
+
+## Options
+
+<ParamField path="--force" type="boolean" default="false">
+  Bypass the server-side conflict check and overwrite the WordPress version unconditionally. Use this when you want your local version to win, discarding any remote changes.
+
+  Alias: `-f`
+</ParamField>
+
+## What it does
+
+<Steps>
+  <Step title="Scan dist/ folders">
+    Reads all `.html` files from `dist/pages/`, `dist/posts/`, and `dist/templates/`.
+  </Step>
+  <Step title="Process images">
+    For each file, detects referenced images and uploads new or changed ones to WordPress.
+  </Step>
+  <Step title="Check the manifest">
+    Compares the file's MD5 hash against `faisan-manifest.json`. Files whose hash has not changed are skipped.
+  </Step>
+  <Step title="Send to WordPress">
+    Posts changed files to `POST /wp-json/faisanbridge/v1/push` with the following payload:
+
+    ```json
+    {
+      "title": "My Page",
+      "slug": "my-page",
+      "html": "<html>...</html>",
+      "post_type": "page",
+      "status": "draft",
+      "parent_hash": "abc123",
+      "force": false
+    }
+    ```
+  </Step>
+  <Step title="Update the manifest">
+    On a successful push, updates `faisan-manifest.json` with the new MD5 hash.
+  </Step>
+</Steps>
+
+## Post type mapping
+
+| Source folder | WordPress `post_type` |
+|---------------|----------------------|
+| `dist/pages/` | `page` |
+| `dist/posts/` | `post` |
+| `dist/templates/` | `faisan_template` |
+
+## Example output
+
+```bash
+npm run faisanbridge push
+```
+
+```
+Pushing: my-page
+Skipping (unchanged): about
+Pushing: home-template
+Done.
+```
+
+```bash
+npm run faisanbridge push --force
+```
+
+```
+Force pushing: my-page
+Force pushing: about
+Force pushing: home-template
+Done.
+```
+
+## Error handling
+
+### 409 Conflict
+
+The server detected that the remote file has changed since your last sync. Your local version and the WordPress version have diverged.
+
+```
+⚠️  Conflict Detected (409):
+   Use 'npm run faisanbridge fetch' or use 'npm run faisanbridge push --force' to overwrite.
+```
+
+Your options:
+
+- Run [`fetch`](/commands/fetch) then [`merge`](/commands/merge) to reconcile the differences.
+- Run `push --force` to overwrite the WordPress version with your local version.
+
+### 401 Unauthorized
+
+```
+❌ Error In Authentication (401):
+   1. The API Keys in your .env file do not match the server's.
+   2. The server is not running.
+   3. The access to faisanbrige is disabled.
+```
+
+Check your `.env` file and confirm the WordPress plugin is active and accessible.
+
+<CardGroup cols={2}>
+  <Card title="build" icon="hammer" href="/commands/build">
+    Compile source HTML before pushing.
+  </Card>
+  <Card title="fetch" icon="download" href="/commands/fetch">
+    Pull remote changes to resolve a 409 conflict.
+  </Card>
+</CardGroup>

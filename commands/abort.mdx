@@ -1,0 +1,59 @@
+---
+title: abort
+description: Discard all pending merge and conflict files, returning your src/ folder to a clean state.
+---
+
+```bash
+npm run faisanbridge abort
+```
+
+The `abort` command removes every `index-pending-to-merge.html` and `index-diff.html` file from `src/pages/`, `src/posts/`, and `src/templates/`. Your local `index.html` working files are not touched.
+
+Use `abort` when you want to discard a fetch operation or abandon conflict resolution and start fresh.
+
+<Warning>
+  `abort` permanently deletes pending merge and conflict files. Any progress made resolving conflicts in `index-diff.html` will be lost. This action cannot be undone.
+</Warning>
+
+## What it does
+
+- Scans `src/pages/`, `src/posts/`, and `src/templates/`.
+- Deletes `index-pending-to-merge.html` in every subfolder where it exists.
+- Deletes `index-diff.html` in every subfolder where it exists.
+- Leaves `index.html` and all other files untouched.
+
+## Example output
+
+```bash
+npm run faisanbridge abort
+```
+
+```
+Aborting...
+Removed: src/pages/my-page/index-pending-to-merge.html
+Removed: src/templates/home-template/index-pending-to-merge.html
+Removed: src/posts/hello-world/index-diff.html
+Done.
+```
+
+When there is nothing to remove:
+
+```
+Aborting...
+Nothing to abort.
+```
+
+## After aborting
+
+Run [`status`](/commands/status) to confirm all pending and conflict files have been cleared.
+
+If you still need to sync with WordPress, run [`fetch`](/commands/fetch) again to re-download the remote content.
+
+<CardGroup cols={2}>
+  <Card title="status" icon="list-check" href="/commands/status">
+    Confirm the workspace is clean after aborting.
+  </Card>
+  <Card title="fetch" icon="download" href="/commands/fetch">
+    Re-download WordPress content to start a fresh merge.
+  </Card>
+</CardGroup>

@@ -1,0 +1,90 @@
+---
+title: merge
+description: Reconcile fetched WordPress content with your local HTML files.
+---
+
+```bash
+npm run faisanbridge merge
+```
+
+The `merge` command compares each `index-pending-to-merge.html` (fetched from WordPress) with the corresponding local `index.html` using line-by-line diffing. It merges the two versions automatically where possible and writes conflict markers when it cannot.
+
+<Note>
+  Run [`fetch`](/commands/fetch) before `merge` to ensure the pending files are up to date.
+</Note>
+
+## What it does
+
+For each item that has an `index-pending-to-merge.html`:
+
+<Steps>
+  <Step title="Compare versions">
+    Diffs `index.html` (local) against `index-pending-to-merge.html` (remote) line by line using `Diff.diffLines`.
+  </Step>
+  <Step title="Identical — no action">
+    If the files are identical, the pending file is removed and no changes are written.
+  </Step>
+  <Step title="Auto-mergeable — merge and clean up">
+    If the differences do not conflict, the merged result is written to `index.html` and the pending file is removed.
+  </Step>
+  <Step title="Conflicts — write diff file">
+    If conflicting changes exist, the CLI writes `index-diff.html` with git-style conflict markers and leaves both the original `index.html` and the pending file in place.
+
+    ```html
+    <<<<<<< HEAD (Local)
+    <p>Local version of the content.</p>
+    =======
+    <p>WordPress version of the content.</p>
+    >>>>>>> REMOTE (WordPress)
+    ```
+  </Step>
+</Steps>
+
+## Resolving conflicts
+
+1. Open `index-diff.html` in your editor.
+2. Find the `<<<<<<< HEAD (Local)` / `>>>>>>> REMOTE (WordPress)` markers.
+3. Edit the file to keep the content you want, removing all conflict markers.
+4. Save the resolved content as `index.html` in the same folder.
+5. Run `merge` again — the CLI will detect that the conflict is resolved and clean up the diff file.
+
+<Warning>
+  Do not rename or move `index-diff.html`. The CLI uses this filename to detect unresolved conflicts.
+</Warning>
+
+## Example output
+
+```bash
+npm run faisanbridge merge
+```
+
+```
+Merging: my-page
+  ✔ Auto-merged successfully.
+Merging: hello-world
+  ✔ Identical. No changes needed.
+Merging: home-template
+  ⚠ Conflicts found. Review src/templates/home-template/index-diff.html
+Done.
+```
+
+After resolving `index-diff.html` and running merge again:
+
+```
+Merging: home-template
+  ✔ Conflicts resolved. Cleaned up.
+Done.
+```
+
+## Checking for conflicts
+
+Use [`status`](/commands/status) to list all files that have pending merges or unresolved conflicts without re-running the merge.
+
+<CardGroup cols={2}>
+  <Card title="status" icon="list-check" href="/commands/status">
+    See which files still have conflicts or pending merges.
+  </Card>
+  <Card title="abort" icon="ban" href="/commands/abort">
+    Discard all pending and conflict files to start fresh.
+  </Card>
+</CardGroup>

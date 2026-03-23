@@ -1,0 +1,118 @@
+---
+title: 'Sync workflow'
+description: 'End-to-end guide for editing pages locally and syncing them with WordPress using Faisan Bridge.'
+---
+
+Faisan Bridge keeps your local HTML files in sync with WordPress. The typical loop is: edit locally, build, then push. This page walks through each step and explains how incremental sync keeps pushes fast.
+
+## The development loop
+
+<Steps>
+  <Step title="Edit your page">
+    Open the HTML file for the page you want to change. Each page lives at:
+
+    ```
+    src/pages/<slug>/index.html
+    ```
+
+    For example, to edit the `about` page:
+
+    ```
+    src/pages/about/index.html
+    ```
+  </Step>
+
+  <Step title="Build the project">
+    Compile your source files to the `dist/` output directory:
+
+    ```bash
+    faisanbridge build
+    ```
+
+    The build step processes HTML, inlines assets, and prepares files for upload.
+  </Step>
+
+  <Step title="Push to WordPress">
+    Upload changed files to WordPress:
+
+    ```bash
+    faisanbridge push
+    ```
+
+    The CLI compares each file's MD5 hash against the local manifest. Files that have not changed are skipped automatically — only modified pages and assets are uploaded.
+  </Step>
+
+  <Step title="Verify the sync">
+    Check which pages have pending remote changes that have not been merged yet:
+
+    ```bash
+    faisanbridge status
+    ```
+  </Step>
+</Steps>
+
+## How incremental sync works
+
+Every push updates a local manifest that stores the MD5 hash of each uploaded file. On the next push, the CLI re-hashes the compiled output and compares it against the manifest. Files whose hash matches are skipped; only changed files are sent to WordPress.
+
+This means large sites with many pages push quickly when only a few pages have changed.
+
+## Pulling changes from WordPress
+
+If content has been edited directly in WordPress, you need to pull those changes back into your local files before pushing again.
+
+<Steps>
+  <Step title="Fetch remote content">
+    Download the current WordPress content for all pages:
+
+    ```bash
+    faisanbridge fetch
+    ```
+
+    For each page, the fetched content is saved alongside the local file as `index-pending-to-merge.html`. Your existing `index.html` is not modified at this stage.
+  </Step>
+
+  <Step title="Merge changes">
+    Run the merge command to diff local and remote content:
+
+    ```bash
+    faisanbridge merge
+    ```
+
+    If no conflicts exist, the merge completes automatically and `index.html` is updated. If conflicts are detected, a `index-diff.html` file is written for you to resolve manually. See [Conflict resolution](/guides/conflict-resolution) for details.
+  </Step>
+
+  <Step title="Build and push">
+    After the merge is complete, rebuild and push as normal:
+
+    ```bash
+    faisanbridge build
+    faisanbridge push
+    ```
+  </Step>
+</Steps>
+
+## Force pushing
+
+<Warning>
+  Force push bypasses the MD5 check and uploads all files regardless of whether they have changed. Use this only when you know the manifest is out of date or corrupted.
+</Warning>
+
+To push all files unconditionally:
+
+```bash
+faisanbridge push --force
+```
+
+A common reason to use `--force` is after manually editing the manifest or after recovering from a failed push that left the manifest in an inconsistent state.
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Conflict resolution" icon="code-merge" href="/guides/conflict-resolution">
+    Learn how to read and resolve merge conflict markers when local and remote changes overlap.
+  </Card>
+  <Card title="Assets and images" icon="image" href="/guides/assets-and-images">
+    Understand how images and CSS/JS assets are uploaded and cached.
+  </Card>
+</Columns>
