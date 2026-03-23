@@ -4,7 +4,7 @@ description: Compile source HTML — inlining components and assets — and outp
 ---
 
 ```bash
-npm run faisanbridge build
+faisanbridge build
 ```
 
 The `build` command processes every `index.html` in `src/pages/`, `src/posts/`, and `src/templates/`, transpiles components and assets, and writes the resulting files to `dist/`.
@@ -13,7 +13,7 @@ The `build` command processes every `index.html` in `src/pages/`, `src/posts/`, 
 
 <Steps>
   <Step title="Clean the output folder">
-    Removes the `dist/` folder entirely before building.
+    Removes the entire `dist/` folder before building to ensure a clean output.
   </Step>
   <Step title="Read source files">
     Scans `src/pages/`, `src/posts/`, and `src/templates/` for `<slug>/index.html` files.
@@ -23,18 +23,21 @@ The `build` command processes every `index.html` in `src/pages/`, `src/posts/`, 
 
     ```html
     <!-- Before build -->
-    <div data-faisan-component="card" data-faisan-key="title">My Title</div>
+    <div data-faisan-component="hero.html" data-faisan-headline="Welcome"></div>
 
-    <!-- After build (card.html contains: <div class="card"><h2>{{title}}</h2></div>) -->
-    <div class="card"><h2>My Title</h2></div>
+    <!-- hero.html contains: <section class="hero"><h1>{{headline}}</h1></section> -->
+
+    <!-- After build -->
+    <section class="hero"><h1>Welcome</h1></section>
     ```
   </Step>
   <Step title="Inline assets">
-    - Replaces `<link data-faisan-asset>` tags with inline `<style>` blocks.
-    - Replaces `<script data-faisan-asset>` tags with inline `<script>` blocks.
+    - Replaces `<link data-faisan-asset>` tags with inline `<style>` blocks containing the CSS file's contents.
+    - Replaces `<script data-faisan-asset>` tags with inline `<script>` blocks containing the JS file's contents.
+    - Preserves the `type="module"` attribute on script tags if present.
   </Step>
   <Step title="Remove dev loader tags">
-    Strips any `<script>` tags referencing `dev-loader.js`.
+    Strips any `<script>` tags whose `src` references `dev-loader.js`.
   </Step>
   <Step title="Write to dist/">
     Writes the compiled file to `dist/<type>/<slug>.html`.
@@ -43,41 +46,49 @@ The `build` command processes every `index.html` in `src/pages/`, `src/posts/`, 
 
 ## Component transpilation
 
-Components are HTML partials referenced with `data-faisan-component` and `data-faisan-key` attributes on a `<div>`.
+Components are HTML partials stored in `src/components/`. Reference them with `data-faisan-component` pointing to the component filename. Pass variables using additional `data-faisan-<key>` attributes — each becomes a `{{key}}` placeholder in the component.
 
 ```html
 <!-- src/pages/home/index.html -->
-<div data-faisan-component="hero" data-faisan-key="headline">Welcome</div>
+<div data-faisan-component="hero.html" data-faisan-headline="Welcome" data-faisan-sub-text="Get started today"></div>
 ```
 
-The build step finds the component file, reads its content, and replaces every `{{headline}}` placeholder with the value from `data-faisan-key`.
+The component file receives the values via `{{headline}}` and `{{sub_text}}` (hyphens in attribute names are converted to underscores):
 
 ```html
-<!-- components/hero.html -->
+<!-- src/components/hero.html -->
 <section class="hero">
   <h1>{{headline}}</h1>
+  <p>{{sub_text}}</p>
 </section>
 ```
+
+Result after build:
 
 ```html
 <!-- dist/pages/home.html (after build) -->
 <section class="hero">
   <h1>Welcome</h1>
+  <p>Get started today</p>
 </section>
 ```
 
 ## Asset inlining
 
-Stylesheets and scripts marked with `data-faisan-asset` are replaced with their inline equivalents:
+Stylesheets and scripts marked with `data-faisan-asset` are replaced with their inline equivalents. Asset paths are resolved relative to the page's source folder (e.g., `src/pages/home/`).
 
 ```html
 <!-- Before -->
-<link rel="stylesheet" href="/assets/styles.css" data-faisan-asset>
-<script src="/assets/app.js" data-faisan-asset></script>
+<link rel="stylesheet" href="styles.css" data-faisan-asset>
+<script src="app.js" data-faisan-asset></script>
 
 <!-- After -->
-<style>/* contents of styles.css */</style>
-<script>/* contents of app.js */</script>
+<style data-faisan-injected="styles.css">
+/* contents of styles.css */
+</style>
+<script data-faisan-injected="app.js">
+/* contents of app.js */
+</script>
 ```
 
 ## Output structure
@@ -95,15 +106,14 @@ dist/
 ## Example output
 
 ```bash
-npm run faisanbridge build
+faisanbridge build
 ```
 
 ```
-Building...
-Built: dist/pages/my-page.html
-Built: dist/posts/hello-world.html
-Built: dist/templates/home-template.html
-Done.
+📦 Building...
+📦 Page my-page compiled to dist/pages/
+📦 Page hello-world compiled to dist/posts/
+📦 Page home-template compiled to dist/templates/
 ```
 
 <Tip>

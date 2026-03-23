@@ -89,21 +89,21 @@ Conflict markers use the following format:
   Aborting discards all remote changes for the affected page. Any edits made in WordPress since your last push will be lost.
 </Warning>
 
-If you want to discard the remote content and keep only your local version:
+If you want to discard the remote content and keep only your local version, use the [`abort`](/commands/abort) command:
 
 ```bash
-faisanbridge merge --abort
+faisanbridge abort
 ```
 
 This deletes `index-pending-to-merge.html` and `index-diff.html` for all pages and leaves `index.html` unchanged.
 
 ## Next steps
 
-<Columns cols={2}>
+<CardGroup cols={2}>
   <Card title="Sync workflow" icon="arrows-rotate" href="/guides/sync-workflow">
     Review the full edit → build → push loop and how incremental sync works.
   </Card>
   <Card title="Assets and images" icon="image" href="/guides/assets-and-images">
     Learn how images are uploaded and how fetch reverses remote URLs to local paths.
   </Card>
-</Columns>
+</CardGroup>

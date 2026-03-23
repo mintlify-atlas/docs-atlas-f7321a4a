@@ -3,7 +3,7 @@ title: Commands overview
 description: A reference for every command available in the Faisan Bridge CLI.
 ---
 
-The Faisan Bridge CLI exposes eight commands. Each command maps to a specific stage of the local-to-WordPress sync workflow.
+The Faisan Bridge CLI exposes seven commands. Each command maps to a specific stage of the local-to-WordPress sync workflow.
 
 <CardGroup cols={2}>
   <Card title="push" icon="upload" href="/commands/push">
@@ -45,16 +45,16 @@ The Faisan Bridge CLI exposes eight commands. Each command maps to a specific st
 
 ```bash
 # 1. Author your pages in src/, then compile
-npm run faisanbridge build
+faisanbridge build
 
 # 2. Send to WordPress
-npm run faisanbridge push
+faisanbridge push
 
 # 3. Pull any changes made in WordPress
-npm run faisanbridge fetch
+faisanbridge fetch
 
 # 4. Reconcile local and remote differences
-npm run faisanbridge merge
+faisanbridge merge
 ```
 
 <Note>

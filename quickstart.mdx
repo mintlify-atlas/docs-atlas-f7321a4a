@@ -63,25 +63,19 @@ This guide walks you through setting up a Faisan Bridge project from scratch and
 
     The full project structure supports pages, posts, templates, and components:
 
-    <Tree>
-      <Tree.Folder name="src" defaultOpen>
-        <Tree.Folder name="pages" defaultOpen>
-          <Tree.Folder name="my-page" defaultOpen>
-            <Tree.File name="index.html" />
-          </Tree.Folder>
-        </Tree.Folder>
-        <Tree.Folder name="posts">
-          <Tree.File name="" />
-        </Tree.Folder>
-        <Tree.Folder name="templates">
-          <Tree.File name="" />
-        </Tree.Folder>
-        <Tree.Folder name="components">
-          <Tree.File name="" />
-        </Tree.Folder>
-      </Tree.Folder>
-      <Tree.File name=".env" />
-    </Tree>
+    ```
+    your-project/
+    ├── src/
+    │   ├── pages/
+    │   │   └── my-page/
+    │   │       └── index.html
+    │   ├── posts/
+    │   ├── templates/
+    │   └── components/
+    ├── assets/
+    │   └── images/
+    └── .env
+    ```
   </Step>
 
   <Step title="Build your project">
@@ -119,7 +113,7 @@ This guide walks you through setting up a Faisan Bridge project from scratch and
     faisanbridge status
     ```
 
-    This shows which local files are in sync, modified, or pending upload.
+    This shows which local files have pending merge files fetched from WordPress or unresolved conflict diff files.
   </Step>
 
 </Steps>

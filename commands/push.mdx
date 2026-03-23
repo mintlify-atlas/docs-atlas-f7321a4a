@@ -4,7 +4,7 @@ description: Send compiled HTML files from your local dist/ folder to WordPress.
 ---
 
 ```bash
-npm run faisanbridge push [--force]
+faisanbridge push [--force]
 ```
 
 The `push` command reads every HTML file from `dist/pages/`, `dist/posts/`, and `dist/templates/`, checks whether the file has changed since the last sync, and sends any changed files to WordPress via the Faisan Bridge REST API.
@@ -28,17 +28,17 @@ The `push` command reads every HTML file from `dist/pages/`, `dist/posts/`, and 
     Reads all `.html` files from `dist/pages/`, `dist/posts/`, and `dist/templates/`.
   </Step>
   <Step title="Process images">
-    For each file, detects referenced images and uploads new or changed ones to WordPress.
+    For each file, scans for image references under `assets/images/` and uploads new or changed images to WordPress. Cached images whose MD5 hash matches the manifest are skipped.
   </Step>
   <Step title="Check the manifest">
-    Compares the file's MD5 hash against `faisan-manifest.json`. Files whose hash has not changed are skipped.
+    Compares the file's MD5 hash against `faisan-manifest.json`. Files whose hash has not changed are skipped with a message like `⏭️ [pages] my-page.html without changes (skipping)`.
   </Step>
   <Step title="Send to WordPress">
     Posts changed files to `POST /wp-json/faisanbridge/v1/push` with the following payload:
 
     ```json
     {
-      "title": "My Page",
+      "title": "my page",
       "slug": "my-page",
       "html": "<html>...</html>",
       "post_type": "page",
@@ -64,25 +64,27 @@ The `push` command reads every HTML file from `dist/pages/`, `dist/posts/`, and 
 ## Example output
 
 ```bash
-npm run faisanbridge push
+faisanbridge push
 ```
 
 ```
-Pushing: my-page
-Skipping (unchanged): about
-Pushing: home-template
-Done.
+📤 Starting Push...
+🔍 Scanning images for: my-page.html...
+✅ [page] my-page: Published successfully
+🔍 Scanning images for: about.html...
+⏭️ [pages] about.html without changes (skipping)
 ```
 
 ```bash
-npm run faisanbridge push --force
+faisanbridge push --force
 ```
 
 ```
-Force pushing: my-page
-Force pushing: about
-Force pushing: home-template
-Done.
+🚀 Forcing Push...
+🔍 Scanning images for: my-page.html...
+✅ [page] my-page: Published successfully
+🔍 Scanning images for: about.html...
+✅ [page] about: Published successfully
 ```
 
 ## Error handling

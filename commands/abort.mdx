@@ -4,7 +4,7 @@ description: Discard all pending merge and conflict files, returning your src/ f
 ---
 
 ```bash
-npm run faisanbridge abort
+faisanbridge abort
 ```
 
 The `abort` command removes every `index-pending-to-merge.html` and `index-diff.html` file from `src/pages/`, `src/posts/`, and `src/templates/`. Your local `index.html` working files are not touched.
@@ -18,29 +18,27 @@ Use `abort` when you want to discard a fetch operation or abandon conflict resol
 ## What it does
 
 - Scans `src/pages/`, `src/posts/`, and `src/templates/`.
-- Deletes `index-pending-to-merge.html` in every subfolder where it exists.
-- Deletes `index-diff.html` in every subfolder where it exists.
+- Deletes `index-diff.html` in every subfolder where it exists. Output: `✅ [type] name: Diff file removed.`
+- Deletes `index-pending-to-merge.html` in every subfolder where it exists. Output: `✅ [type] name: Remote file removed.`
 - Leaves `index.html` and all other files untouched.
 
 ## Example output
 
 ```bash
-npm run faisanbridge abort
+faisanbridge abort
 ```
 
 ```
-Aborting...
-Removed: src/pages/my-page/index-pending-to-merge.html
-Removed: src/templates/home-template/index-pending-to-merge.html
-Removed: src/posts/hello-world/index-diff.html
-Done.
+📦 Aborting...
+✅ [pages] my-page: Remote file removed.
+✅ [templates] home-template: Remote file removed.
+✅ [posts] hello-world: Diff file removed.
 ```
 
-When there is nothing to remove:
+When there is nothing to remove, the command completes silently (no per-item messages):
 
 ```
-Aborting...
-Nothing to abort.
+📦 Aborting...
 ```
 
 ## After aborting

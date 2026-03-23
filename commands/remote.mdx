@@ -4,10 +4,10 @@ description: Verify connectivity to your WordPress site and confirm the Faisan B
 ---
 
 ```bash
-npm run faisanbridge remote
+faisanbridge remote
 ```
 
-The `remote` command sends a `GET` request to `/wp-json/faisanbridge/v1/remote` and prints whether the WordPress site is reachable and responding correctly. Use it to confirm your environment is configured before running `push` or `fetch`.
+The `remote` command sends a signed `GET` request to `/wp-json/faisanbridge/v1/remote` and prints whether the WordPress site is reachable and responding correctly. Use it to confirm your environment is configured before running `push` or `fetch`.
 
 ## What it does
 
@@ -20,11 +20,12 @@ The `remote` command sends a `GET` request to `/wp-json/faisanbridge/v1/remote` 
 Successful connection:
 
 ```bash
-npm run faisanbridge remote
+faisanbridge remote
 ```
 
 ```
-Remote: Is OK
+📦 Remote...
+✅ Remote: Is OK
 ```
 
 ## Error handling
@@ -40,7 +41,7 @@ Remote: Is OK
 
 Check the following:
 
-1. Your `.env` file contains the correct `FAISAN_API_KEY` and `FAISAN_SECRET_KEY` values matching those configured in the WordPress plugin.
+1. Your `.env` file contains the correct `FAISAN_PUBLIC_KEY` and `FAISAN_SECRET_KEY` values matching those configured in the WordPress plugin.
 2. The WordPress site is running and accessible at the URL in your `.env`.
 3. The Faisan Bridge plugin is installed, activated, and access is enabled in its settings.
 

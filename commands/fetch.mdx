@@ -4,7 +4,7 @@ description: Download the latest content from WordPress into local pending merge
 ---
 
 ```bash
-npm run faisanbridge fetch
+faisanbridge fetch
 ```
 
 The `fetch` command calls the Faisan Bridge REST API and downloads the current WordPress content for every tracked post, page, and template. Each downloaded file is saved alongside your local source as `index-pending-to-merge.html` — it does not overwrite your working files until you run [`merge`](/commands/merge).
@@ -13,7 +13,7 @@ The `fetch` command calls the Faisan Bridge REST API and downloads the current W
 
 <Steps>
   <Step title="Call the API">
-    Sends a `GET` request to `/wp-json/faisanbridge/v1/fetch`.
+    Sends a signed `GET` request to `/wp-json/faisanbridge/v1/fetch`.
   </Step>
   <Step title="Save pending files">
     For each item returned, writes the WordPress HTML to:
@@ -22,32 +22,43 @@ The `fetch` command calls the Faisan Bridge REST API and downloads the current W
     src/<folder>/<post_name>/index-pending-to-merge.html
     ```
 
-    Where `<folder>` is `pages`, `posts`, or `templates`.
+    Where `<folder>` is `pages`, `posts`, or `templates` (template posts use the `faisan_template` post type).
   </Step>
   <Step title="Rewrite image paths">
-    Replaces WordPress upload URLs (e.g. `https://example.com/wp-content/uploads/...`) with local asset paths:
+    Replaces WordPress upload URLs (e.g. `https://yoursite.com/wp-content/uploads/...`) with local asset paths:
 
     ```
     /assets/images/<filename>
     ```
   </Step>
   <Step title="Prompt to merge">
-    Prints a reminder to run `merge` to reconcile the fetched content with your local files.
+    After writing each file, prints a reminder to run `merge` to reconcile the fetched content with your local files.
   </Step>
 </Steps>
 
 ## Example output
 
 ```bash
-npm run faisanbridge fetch
+faisanbridge fetch
 ```
 
 ```
-Fetching from WordPress...
-Saved: src/pages/my-page/index-pending-to-merge.html
-Saved: src/posts/hello-world/index-pending-to-merge.html
-Saved: src/templates/home-template/index-pending-to-merge.html
-Done. Run 'npm run faisanbridge merge' to reconcile changes.
+📥 Downloading changes from WordPress...
+📄 [pages] my-page: processed content length 2847
+📍 Writing to: /your-project/src/pages/my-page/index-pending-to-merge.html
+✅ File verified on disk: 2847 bytes
+📥 Synced: my-page Now you can run 'npm run faisanbridge merge' to merge the changes.
+📄 [posts] hello-world: processed content length 1203
+📍 Writing to: /your-project/src/posts/hello-world/index-pending-to-merge.html
+✅ File verified on disk: 1203 bytes
+📥 Synced: hello-world Now you can run 'npm run faisanbridge merge' to merge the changes.
+```
+
+If there are no posts tracked in WordPress:
+
+```
+📥 Downloading changes from WordPress...
+⏭️  No Posts detected (skipping)
 ```
 
 ## After fetching

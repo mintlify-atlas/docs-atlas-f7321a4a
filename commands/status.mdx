@@ -4,7 +4,7 @@ description: Report files that are pending merge or have unresolved conflicts.
 ---
 
 ```bash
-npm run faisanbridge status
+faisanbridge status
 ```
 
 The `status` command scans your `src/` folders and prints a summary of which items have files waiting to be merged (`index-pending-to-merge.html`) and which have unresolved conflicts (`index-diff.html`).
@@ -15,42 +15,38 @@ No network request is made. `status` only reads the local file system.
 
 | Condition | File present | Meaning |
 |-----------|--------------|---------|
-| Pending merge | `index-pending-to-merge.html` | Content fetched from WordPress, not yet merged |
-| Conflict | `index-diff.html` | Merge produced conflicts requiring manual resolution |
+| Remote file | `index-pending-to-merge.html` | Content fetched from WordPress, not yet merged |
+| Diff file | `index-diff.html` | Merge produced conflicts requiring manual resolution |
 
 ## Example output
 
 ```bash
-npm run faisanbridge status
+faisanbridge status
 ```
 
-```
-Status:
-
-Pending merge (fetched from WordPress):
-  pages/my-page
-  templates/home-template
-
-Conflicts (resolve manually):
-  posts/hello-world
-
-Total pending: 2
-Total conflicts: 1
-```
-
-When everything is clean:
+When there are pending files:
 
 ```
-Status:
+📦 Status...
+⚠️ [pages] my-page: Remote file found.
+⚠️ [templates] home-template: Remote file found.
+⚠️ [posts] hello-world: Diff file found.
+Total items fetched from WordPress: 2
+Total items pending to merge: 1
+```
 
-No pending merges.
-No conflicts.
+When everything is clean (no output lines for individual items):
+
+```
+📦 Status...
+Total items fetched from WordPress: 0
+Total items pending to merge: 0
 ```
 
 ## Next steps based on status
 
-- **Pending merge** — run [`merge`](/commands/merge) to reconcile the fetched content with your local file.
-- **Conflict** — open `index-diff.html`, resolve the `<<<<<<< HEAD` / `>>>>>>> REMOTE` markers, save the result as `index.html`, then run `merge` again.
+- **Remote file found** — run [`merge`](/commands/merge) to reconcile the fetched content with your local file.
+- **Diff file found** — open `index-diff.html`, resolve the `<<<<<<< HEAD (Local)` / `>>>>>>> REMOTE (WordPress)` markers, then run `merge` again.
 - **Want to discard everything** — run [`abort`](/commands/abort) to remove all pending and conflict files.
 
 <CardGroup cols={2}>

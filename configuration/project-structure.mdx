@@ -63,14 +63,17 @@ Contains local images referenced in your HTML files. The CLI uploads images from
 The `dist/` directory is generated automatically when you run a build. The output mirrors the source structure, with each `<slug>/index.html` compiled to `<slug>.html`.
 
 <Warning>
-  Do not commit the `dist/` directory or `faisan-manifest.json` to version control unless you have a specific reason to. Add both to your `.gitignore`.
+  Do not commit the `dist/` directory or your `.env` credentials file. Add them to `.gitignore`:
 
   ```bash .gitignore
   dist/
-  faisan-manifest.json
   .env
   ```
 </Warning>
+
+<Tip>
+  Commit `faisan-manifest.json` to your repository. It records the sync state shared across your team — without it, every push re-uploads all files and creates duplicate media in WordPress.
+</Tip>
 
 ## Components
 
@@ -110,14 +113,13 @@ Add the `data-faisan-asset` attribute to `<link>` or `<script>` tags to inline t
 
 ```json faisan-manifest.json
 {
-  "last_publish": "2024-01-15T10:30:00.000Z",
   "files": {
-    "dist/pages/about.html": {
+    "pages/about": {
       "hash": "d41d8cd98f00b204e9800998ecf8427e"
     },
     "assets/images/logo.png": {
       "hash": "5d41402abc4b2a76b9719d911017c592",
-      "url": "https://cdn.yoursite.com/images/logo.png"
+      "url": "https://yoursite.com/wp-content/uploads/logo.png"
     }
   }
 }
